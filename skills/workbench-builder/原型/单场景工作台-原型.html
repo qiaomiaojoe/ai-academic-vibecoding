@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的AI学术工作台 · 单场景原型</title>
+<!--
+  ═══════════════════════════════════════════════════════════════
+  单场景工作台 · 原型
+  乔淼PhD · AI学术训练营 · 工作台搭建工具包
+
+  一个场景 = 一条工作流 =
+  交互输入 → 引用你的 skill → 生成 prompt → 复制去 Claude Code/Codex 跑。
+
+  整个文件只有三个部件,代码里用 ◆ 部件① ~ ◆ 部件③ 的横幅注释
+  标出了每个部件的边界。想改哪里,把这个文件拖给 Claude Code/Codex,
+  用大白话说"我要改部件几的什么",就像跟一个人类程序员沟通。
+
+    部件① 交互输入   收输入的各种交互零件:tab / 文本框 / 下拉 / 勾选 / Zotero / 上传 .md
+    部件② skill      这个场景的学术逻辑 —— 不写在网页里,而是固化成一个 skill;
+                     这里只"引用"它,生成一条 skill 调用指令
+    部件③ prompt生成  两个机械件在这里:前段 context(来自部件①)+ 后段 落盘;
+                     拼上部件②的调用指令 = 完整 prompt,一键复制
+
+  ★ 关键变化:学术判断不再埋在网页的字符串里,而是搬进 skill。
+    改方法 = 改 skill,不用动这个 HTML。
+    prompt = context(机械) + 调用你的 skill(方法) + 落盘(机械)。
+  ═══════════════════════════════════════════════════════════════
+-->
+<style>
+  :root {
+    --ink:        #2c2416;
+    --ink-strong: #1a1208;
+    --muted:      #8a7560;
+    --faint:      #a89a86;
+    --line:       #ece6dc;
+    --line-soft:  #f3efe7;
+    --card:       #ffffff;
+    --bg:         #faf7f2;
+    --accent:     #b8834a;
+    --accent-dk:  #9c6c39;
+    --accent-sft: #fbf3e8;
+    --code-bg:    #211a10;
+    --code-ink:   #ece3d2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.7; padding: 40px 18px 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  /* ─── Header ─── */
+  .kicker {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin-bottom: 8px;
+  }
+  header h1 { font-size: 25px; font-weight: 800; color: var(--ink-strong); letter-spacing: .3px; }
+  header .sub { color: var(--muted); font-size: 13.5px; margin-top: 8px; max-width: 660px; }
+  header .flow {
+    display: inline-flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;
+    font-size: 12px; color: var(--muted);
+  }
+  header .flow span {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 20px; padding: 4px 12px; font-weight: 600;
+  }
+  header .flow span b { color: var(--accent); font-weight: 700; }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 22px 26px; margin-top: 18px;
+    box-shadow: 0 1px 2px rgba(44,36,22,.03), 0 6px 20px rgba(44,36,22,.04);
+  }
+  .card-head { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; }
+  .chip {
+    flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    color: var(--accent); background: var(--accent-sft);
+    border: 1px solid #f0e2ce; border-radius: 7px; padding: 3px 9px;
+  }
+  .card-head h2 { font-size: 16px; font-weight: 700; color: var(--ink-strong); }
+  .card-head .scene { color: var(--accent); }
+  .card-desc { font-size: 12.5px; color: var(--muted); margin: 6px 0 4px; }
+  /* 三个部件各自的淡色底,做视觉区分(白色输入件在上面更跳)*/
+  #form-zone   { background: #fdf6ee; }  /* 部件① 交互输入 · 暖桃 */
+  #skill-zone  { background: #fbf2e0; }  /* 部件② skill · 琥珀 */
+  #action-zone { background: #f3f2ea; }  /* 部件③ prompt生成 · 砂灰 */
+  code.k {
+    font-family: "SF Mono", Menlo, monospace; font-size: 11.5px;
+    background: var(--line-soft); color: var(--accent-dk); padding: 1px 6px; border-radius: 5px;
+  }
+
+  /* ─── 部件① 交互零件(样板间)─── */
+  .widget { border: 1px solid var(--line); border-radius: 13px; padding: 15px 17px; margin-top: 13px; background: #fff; }
+  .w-head { display: flex; align-items: center; gap: 9px; margin-bottom: 3px; flex-wrap: wrap; }
+  .w-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--accent);
+    background: #fff; border: 1px solid #f0e2ce; border-radius: 6px; padding: 2px 8px;
+  }
+  .w-name { font-size: 13.5px; font-weight: 700; color: var(--ink-strong); }
+  .w-sub { font-size: 11.5px; color: var(--faint); margin-bottom: 10px; }
+
+  label.field { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin: 0 0 5px; }
+  input[type="text"], textarea, select {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 10px 13px; font-size: 14px; font-family: inherit; color: var(--ink);
+    background: #fff; transition: border-color .18s, box-shadow .18s;
+  }
+  textarea { min-height: 70px; resize: vertical; line-height: 1.6; }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,131,74,.13);
+  }
+  select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%239c6c39' stroke-width='1.6' stroke-linecap='round'/></svg>"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; cursor: pointer; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 5px; background: var(--line-soft); padding: 5px; border-radius: 12px; }
+  .tab { flex: 1; text-align: center; padding: 8px 6px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: background .15s, color .15s; }
+  .tab.active { background: #fff; color: var(--accent-dk); box-shadow: 0 1px 3px rgba(44,36,22,.09); }
+  .tab-hint { font-size: 12px; color: var(--muted); margin-top: 9px; padding-left: 2px; }
+
+  /* checkboxes */
+  .checks { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+  .check { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+  .check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  /* Zotero 本地库检索 */
+  .zotero-option { display: flex; align-items: center; gap: 8px; }
+  .zotero-query { display: none; margin-top: 10px; }
+  .zotero-query.show { display: block; }
+  .zotero-query label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+
+  /* file upload */
+  .file-drop { display: flex; align-items: center; gap: 13px; border: 1.5px dashed #d8c6a4; border-radius: 11px; padding: 13px 15px; background: #fbf6ec; }
+  .file-btn { flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--accent-dk); background: var(--accent-sft); border: 1px solid #f0e2ce; border-radius: 9px; padding: 8px 14px; cursor: pointer; }
+  .file-btn:hover { background: #f8ecda; }
+  .file-name { font-size: 12.5px; color: var(--muted); }
+  .file-name b { color: var(--accent-dk); font-weight: 700; }
+
+  /* ─── 部件② skill 卡 ─── */
+  #skill-zone { border-left: 4px solid var(--accent); }
+  .skill-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; margin-top: 4px; }
+  @media (max-width: 640px) { .skill-grid { grid-template-columns: 1fr; } }
+  .skill-note {
+    font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 14px;
+    background: var(--accent-sft); border-radius: 10px; padding: 12px 14px;
+  }
+  .skill-note b { color: var(--accent-dk); }
+  .call-preview {
+    margin-top: 13px; background: var(--code-bg); border-radius: 11px; padding: 13px 16px;
+    font-family: "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.6; color: var(--code-ink);
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .call-preview .lead { color: var(--accent); font-weight: 700; }
+
+  /* ─── 部件③ 动作区 ─── */
+  .actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  button {
+    border: none; border-radius: 10px; padding: 11px 20px; font-size: 14px;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: background .18s, transform .05s;
+  }
+  .btn-preview { background: var(--accent-sft); color: var(--accent-dk); border: 1px solid #f0e2ce; }
+  .btn-preview:hover { background: #f8ecda; }
+  .btn-copy { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(184,131,74,.28); }
+  .btn-copy:hover { background: var(--accent-dk); }
+  button:active { transform: translateY(1px); }
+  .dataflow { font-size: 11.5px; color: var(--faint); margin: 14px 0 2px; line-height: 1.55; }
+  .dataflow b { color: var(--muted); font-weight: 600; }
+
+  /* Output segments */
+  #preview { margin-top: 16px; }
+  .preview-empty {
+    border: 1.5px dashed var(--line); border-radius: 12px;
+    padding: 26px; text-align: center; color: var(--faint); font-size: 13px; background: #fdfbf7;
+  }
+  .seg { border-radius: 13px; overflow: hidden; margin-top: 12px; }
+  .seg-head { display: flex; align-items: center; gap: 8px; padding: 10px 15px; font-size: 12px; font-weight: 700; }
+  .seg-head .badge { font-size: 10px; letter-spacing: .5px; padding: 2px 7px; border-radius: 6px; }
+  .seg pre { margin: 0; padding: 15px 17px; white-space: pre-wrap; word-wrap: break-word; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.65; }
+  /* 机械件(context / 落盘)= 深色 */
+  .seg--code { background: var(--code-bg); }
+  .seg--code .seg-head { background: rgba(255,255,255,.04); color: #d9cdb6; }
+  .seg--code .seg-head .badge { background: var(--accent); color: #fff; }
+  .seg--code pre { color: var(--code-ink); }
+  /* 调用 skill = 暖色高亮(指向部件②的方法) */
+  .seg--skill { background: var(--accent-sft); border: 1.5px solid #e2caa4; }
+  .seg--skill .seg-head { color: var(--accent-dk); }
+  .seg--skill .seg-head .badge { background: var(--accent); color: #fff; }
+  .seg--skill pre { color: #5f4a2a; }
+
+  footer { text-align: center; color: var(--faint); font-size: 12px; margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 44px; transform: translateX(-50%) translateY(8px);
+    background: var(--ink-strong); color: #fff; border-radius: 10px; padding: 10px 18px;
+    font-size: 13px; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none;
+    box-shadow: 0 8px 26px rgba(26,18,8,.32);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">乔淼PhD · AI学术训练营 · AI学术工作流</div>
+    <h1>我的 AI 学术工作台 · 单场景原型</h1>
+    <div class="sub">
+      一个场景 = 一条工作流:<b>交互输入 → 引用你的 skill → 生成 prompt → 复制去 Claude Code / Codex 跑。</b>
+      学术逻辑固化在 skill 里,不再埋进网页——改方法 = 改 skill。
+    </div>
+    <div class="flow">
+      <span>① <b>交互输入</b></span>
+      <span>② <b>引用 skill</b></span>
+      <span>③ <b>生成 prompt</b></span>
+      <span><b>复制去 Claude Code / Codex 跑</b></span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ◆ 部件① 交互输入
+       这个场景怎么收输入。原型把常用的交互零件都摆出来当"样板间":
+       tab切换 / 文本框 / 下拉菜单 / 勾选框 / 上传 .md 文档。
+       搭你自己的场景时,留下用得上的、删掉用不上的、换成你的变量。
+       每个零件的值都会被注入部件③的 context。
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="card" id="form-zone">
+    <div class="card-head">
+      <span class="chip">部件①</span>
+      <h2>交互输入 · <span class="scene">收集这个场景要用的变量</span></h2>
+    </div>
+    <p class="card-desc">下面是一套常用的交互零件(样板间)。搭你自己的场景时留下需要的、删掉多余的。每个零件的值都会进部件③的 context。</p>
+
+    <!-- 零件 A · Tab 切换 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">Tab 切换</span><span class="w-name">研究取向</span></div>
+      <div class="w-sub">用来在几种互斥模式里选一个,点击切换。</div>
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-v="质性" onclick="pickTab(this)">质性</div>
+        <div class="tab" data-v="量化" onclick="pickTab(this)">量化</div>
+        <div class="tab" data-v="混合方法" onclick="pickTab(this)">混合方法</div>
+      </div>
+      <div class="tab-hint" id="tabHint">质性:访谈、案例、民族志、话语分析</div>
+    </div>
+
+    <!-- 零件 B · 多行文本框 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">文本框 · 多行</span><span class="w-name">研究方向 / 核心问题</span></div>
+      <div class="w-sub">开放式、篇幅不定的输入,用 textarea。</div>
+      <textarea id="f-topic" placeholder="例:平台经济下的零工劳动 —— 骑手之间自发形成的一套民间算法知识"></textarea>
+    </div>
+
+    <!-- 零件 C · 单行文本框 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">文本框 · 单行</span><span class="w-name">目标期刊(可选)</span></div>
+      <div class="w-sub">短、一行能写完的输入,用 input。</div>
+      <input type="text" id="f-journal" placeholder="例:《社会学研究》/ New Media &amp; Society">
+    </div>
+
+    <!-- 零件 D · 下拉菜单 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">下拉菜单</span><span class="w-name">写作目标</span></div>
+      <div class="w-sub">选项固定、只选一个,用 select 省地方。</div>
+      <select id="f-goal">
+        <option value="期刊论文">期刊论文</option>
+        <option value="硕士论文">硕士论文</option>
+        <option value="博士论文">博士论文</option>
+        <option value="研究计划(RP)">研究计划(RP)</option>
+      </select>
+    </div>
+
+    <!-- 零件 E · 勾选框 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">勾选框 · 多选</span><span class="w-name">手头已有的材料</span></div>
+      <div class="w-sub">可多选、彼此不互斥,用 checkbox。</div>
+      <div class="checks">
+        <label class="check"><input type="checkbox" name="mat" value="已有数据">已有数据</label>
+        <label class="check"><input type="checkbox" name="mat" value="已有文献">已有文献</label>
+        <label class="check"><input type="checkbox" name="mat" value="已有初稿">已有初稿</label>
+        <label class="check"><input type="checkbox" name="mat" value="暂无材料">暂无材料</label>
+      </div>
+    </div>
+
+    <!-- 零件 F · 搜索本地 Zotero 库 -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">本地文献库</span><span class="w-name">Zotero 检索(可选)</span></div>
+      <div class="w-sub">勾选后把本地 Zotero 库检索要求写入 context；实际检索由接收 prompt 的 Codex / Claude Code 完成。</div>
+      <label class="check zotero-option">
+        <input type="checkbox" id="f-zotero" onchange="toggleZotero()">
+        搜索本地 Zotero 库
+      </label>
+      <div class="zotero-query" id="zoteroQueryWrap">
+        <label for="f-zotero-query">检索词(可选；留空则根据研究方向自动提炼)</label>
+        <input type="text" id="f-zotero-query" placeholder="例:平台劳动、算法管理、骑手知识">
+      </div>
+    </div>
+
+    <!-- 零件 G · 上传 .md -->
+    <div class="widget">
+      <div class="w-head"><span class="w-tag">上传 · .md 文档</span><span class="w-name">参考文档(可选)</span></div>
+      <div class="w-sub">把一份本地 Markdown 读进来当上文,内容会附进 context。</div>
+      <div class="file-drop">
+        <label class="file-btn">选择 .md 文件
+          <input type="file" id="f-md" accept=".md,.markdown,text/markdown,text/plain" style="display:none" onchange="readMd(this)">
+        </label>
+        <span class="file-name" id="mdName">还没有选择文件</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ◆ 部件② skill
+       这个场景的"学术逻辑"—— 步骤 / 判断标准 / 硬约束 / 停点 ——
+       不写在这个网页里,而是固化成一个 skill(一份 SKILL.md)。
+       部件② 只负责"引用"它:填 skill 名字 + 一句话职责,
+       生成一条 skill 调用指令,交给部件③拼进 prompt。
+       改方法 = 改那个 skill,不用动这个 HTML。
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="card" id="skill-zone">
+    <div class="card-head">
+      <span class="chip">部件②</span>
+      <h2>skill · 这个场景的学术逻辑</h2>
+    </div>
+    <p class="card-desc">场景的方法(步骤 / 判断标准 / 硬约束 / 停点)固化成一个 skill。这里只引用它——生成一条调用指令,不在网页里展开逻辑。</p>
+    <div class="skill-grid">
+      <div>
+        <label class="field">skill 名称</label>
+        <input type="text" id="skillName" value="选题探索" oninput="renderCall()">
+      </div>
+      <div>
+        <label class="field">一句话职责(它负责做什么)</label>
+        <input type="text" id="skillDuty" value="从一个现象出发,产出可写作、可验证的研究问题" oninput="renderCall()">
+      </div>
+    </div>
+    <div class="call-preview" id="callPreview"></div>
+    <div class="skill-note">
+      <b>为什么把方法搬进 skill?</b> 埋在网页字符串里的逻辑不直观、也难改。写成 SKILL.md 后:一处维护、能被多个场景复用、还能单独打磨。
+      放进项目或全局 <code class="k">skills/</code> 目录,Claude Code 会按 skill 描述自动匹配,也可以直接 <code class="k">/选题探索</code> 调用。
+      还没有 skill?先用教程 D 的 SKILL 模板把方法写出来,再回来引用它。
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ◆ 部件③ prompt 生成和复制
+       两个机械件都在这里:
+         前段 context ← 部件①各交互零件的值,自动拼装
+         后段 落盘   ← 写到哪个文件、什么格式(相对当前工作目录)
+       和部件②的 skill 调用指令拼在一起 = 完整 prompt:
+         prompt = context + 调用你的 skill + 落盘
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="card" id="action-zone">
+    <div class="card-head">
+      <span class="chip">部件③</span>
+      <h2>prompt 生成和复制</h2>
+    </div>
+    <label class="field" for="outFile" style="margin-top:4px">产出文件名(落盘 · 机械件)</label>
+    <input type="text" id="outFile" value="选题.md" placeholder="例:选题.md">
+    <p class="card-desc" style="margin-top:8px">落盘写相对路径 <code class="k">产出/文件名</code>——你在 Claude Code 里已经在项目文件夹里了,不用再给绝对路径,所以这版去掉了状态区。</p>
+
+    <div class="actions">
+      <button class="btn-preview" id="btnPreview">生成预览</button>
+      <button class="btn-copy" id="btnCopy">一键复制完整 prompt</button>
+    </div>
+    <p class="dataflow"><b>prompt = context + 调用你的 skill + 落盘。</b>部件①收值 → 拼成 context;部件②给出 skill 调用指令;这里补上落盘 → 送到剪贴板。HTML 自己不跑 AI,它只让"和 AI 合作的第一步"不再从空白对话框开始。</p>
+    <div id="preview">
+      <div class="preview-empty">点「生成预览」查看完整 prompt。三块会分开显示:深色 = 机械件(context / 落盘),暖色 = 调用你的 skill。</div>
+    </div>
+  </section>
+
+  <footer>工作台搭建工具包 · 乔淼PhD AI学术训练营 · 仅限学员个人使用,请勿再分发</footer>
+</div>
+
+<div class="toast" id="toast">已复制,去粘给 Claude Code/Codex 吧</div>
+
+<script>
+/* ─── 部件① 交互输入的行为 ─── */
+let activeTab = "质性";
+const TAB_HINTS = {
+  "质性": "质性:访谈、案例、民族志、话语分析",
+  "量化": "量化:问卷、实验、统计分析",
+  "混合方法": "混合方法:质性 + 量化结合,先后或并行"
+};
+function pickTab(el) {
+  document.querySelectorAll("#tabs .tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  activeTab = el.dataset.v;
+  document.getElementById("tabHint").textContent = TAB_HINTS[activeTab];
+}
+
+let mdName = "", mdText = "";
+function readMd(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    mdText = e.target.result || "";
+    mdName = file.name;
+    document.getElementById("mdName").innerHTML =
+      `已读取 <b>${escapeHTML(mdName)}</b> · 约 ${mdText.length} 字`;
+  };
+  reader.readAsText(file);
+}
+
+function val(id) { return (document.getElementById(id).value || "").trim(); }
+function getChecked(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(c => c.value);
+}
+
+function toggleZotero() {
+  const enabled = document.getElementById("f-zotero").checked;
+  const wrap = document.getElementById("zoteroQueryWrap");
+  wrap.classList.toggle("show", enabled);
+  if (enabled) document.getElementById("f-zotero-query").focus();
+}
+
+/* ─── 部件② skill 调用指令 ─── */
+function buildSkillCall() {
+  const name = val("skillName") || "(未命名 skill)";
+  const duty = val("skillDuty");
+  return `## 调用 skill
+
+请使用「${name}」skill 处理上面的输入${duty ? `(该 skill 负责:${duty})` : ""}。
+严格遵循该 skill 内定义的步骤、判断标准、硬约束与停点;拿不准处明说,不要编造。
+(学术逻辑写在 skill 里,本 prompt 不展开。)`;
+}
+function renderCall() {
+  const name = val("skillName") || "(未命名 skill)";
+  document.getElementById("callPreview").innerHTML =
+    `<span class="lead">→ 生成的调用指令:</span>\n` + escapeHTML(
+      `请使用「${name}」skill 处理输入,严格遵循其步骤/判断标准/硬约束/停点。`);
+}
+
+/* ─── 部件③ 组装 prompt(context + skill调用 + 落盘)─── */
+function buildContext() {
+  const topic   = val("f-topic")   || "【未填研究方向/核心问题】";
+  const journal = val("f-journal");
+  const goal    = val("f-goal");
+  const mats    = getChecked("mat");
+  const useZotero = document.getElementById("f-zotero").checked;
+  const zoteroQuery = val("f-zotero-query");
+
+  let c = `## 背景(context)
+
+【本次输入】
+研究取向:${activeTab}
+研究方向/核心问题:${topic}`;
+  if (journal) c += `\n目标期刊:${journal}`;
+  c += `\n写作目标:${goal}`;
+  if (mats.length) c += `\n手头材料:${mats.join("、")}`;
+  if (useZotero) {
+    c += `\n本地 Zotero 检索:请搜索本地 Zotero 库；检索词:${zoteroQuery || "根据上述研究方向/核心问题自动提炼"}。优先使用库内已有全文与笔记，并列出实际采用文献的题名、作者、年份和 Zotero 条目链接或 citekey。`;
+  }
+  if (mdName)      c += `\n参考文档:已上传 \`${mdName}\`(约 ${mdText.length} 字),原文见下方附录。`;
+  if (mdText) {
+    const body = mdText.length > 6000 ? mdText.slice(0, 6000) + "\n…(内容过长,已截断)" : mdText;
+    c += `\n\n【参考文档原文 · ${mdName}】\n---\n${body}\n---`;
+  }
+  return c;
+}
+function buildOutput() {
+  const f = val("outFile") || "产出.md";
+  return `## 输出落盘
+
+把最终产出写入当前工作目录下 \`产出/${f}\`(目录不存在则创建),
+Markdown 格式,开头注明日期与本次输入摘要,方便下一个场景直接读取。`;
+}
+function buildParts()  { return { context: buildContext(), skill: buildSkillCall(), output: buildOutput() }; }
+function buildPrompt() { const p = buildParts(); return [p.context, p.skill, p.output].join("\n\n"); }
+
+/* ─── 生成预览(三块分开)+ 复制 ─── */
+let LAST = { context: "", skill: "", output: "", full: "" };
+function escapeHTML(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+function renderPreview() {
+  const p = buildParts();
+  LAST = { ...p, full: [p.context, p.skill, p.output].join("\n\n") };
+
+  const seg = (cls, badge, lbl, key) => `
+    <div class="seg ${cls}">
+      <div class="seg-head"><span class="badge">${badge}</span><span class="lbl">${lbl}</span></div>
+      <pre>${escapeHTML(LAST[key])}</pre>
+    </div>`;
+
+  document.getElementById("preview").innerHTML =
+    seg("seg--code",  "context", "机械件 · 来自部件①", "context") +
+    seg("seg--skill", "skill",   "调用你的 skill · 部件②", "skill") +
+    seg("seg--code",  "落盘",    "机械件 · 部件③", "output");
+}
+
+async function copyText(text, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+  const toast = document.getElementById("toast");
+  toast.textContent = msg || "已复制,去粘给 Claude Code/Codex 吧";
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+document.getElementById("btnPreview").addEventListener("click", renderPreview);
+document.getElementById("btnCopy").addEventListener("click", () => {
+  renderPreview();
+  copyText(LAST.full, "已复制完整 prompt,去粘给 Claude Code/Codex 吧");
+});
+
+renderCall();
+</script>
+</body>
+</html>

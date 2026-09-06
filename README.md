@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-workbench/m
 
 | Skill | 用途 |
 |-------|------|
-| [`workbench-builder`](skills/workbench-builder/SKILL.md) | 工作台搭建教练：访谈你 → 把你的方法整理成一份 `SKILL.md` → 生成引用它的单场景 HTML。也能给已有工作台加场景卡，或只打磨 skill 不动 HTML |
+| [`workbench-builder`](skills/workbench-builder/SKILL.md) | 工作台搭建教练：访谈你 → 把你的方法整理成一份 `SKILL.md` → 生成引用它的单场景 HTML。也能给已有工作台加场景卡，或只打磨 skill 不动 HTML。**单场景原型随 skill 一起装**（[`原型/单场景工作台-原型.html`](skills/workbench-builder/原型/单场景工作台-原型.html)），装完即可用，不用另外找文件 |
 
 > **随课增加。** 进阶班五讲各有产出，后续讲次用到的 skill 会陆续进本仓库；重跑一次上面那行安装命令就是更新。
 
