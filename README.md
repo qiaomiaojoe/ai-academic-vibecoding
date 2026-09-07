@@ -5,12 +5,18 @@
 >
 > **谁在用**：AI学术训练营·进阶班学员
 
+> **关于仓库名里的 vibecoding**
+> 进阶班全程**零代码**：改工作台是把 HTML 拖给 Claude Code / Codex，用大白话说"哪个部件、想要什么行为"，
+> 像跟一个人类程序员沟通——这正是 vibe coding。
+> 但学术场景的 vibe coding 有一个别处没有的重点：**你亲手写的不是代码，是 skill，写的是学术判断。**
+> 界面可以说人话让 AI 改，方法不行——那部分没人能替你写。
+
 ---
 
 ## 一行安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-workbench/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-vibecoding/main/install.sh | bash
 ```
 
 脚本会自动认出你装的是 Claude Code（`~/.claude/skills/`）还是 Codex（`${CODEX_HOME:-$HOME/.codex}/skills/`），两个都有就都装。装完重启一次，然后在你的项目目录里说「**帮我搭我的工作台**」。
@@ -26,7 +32,7 @@ curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-workbench/m
 | 仓库 | 装的是什么 | 一句话 |
 |------|-----------|--------|
 | [`ai-academic-workflow`](https://github.com/qiaomiaojoe/ai-academic-workflow) | 选题 / 文献搜索 / 文献分析 / 研究设计 / 数据分析 / 全文初稿的成套 skills | **用工作流做研究** |
-| **`ai-academic-workbench`**（本仓库） | 造工作台、造 skill 的 skills | **造工作流本身** |
+| **`ai-academic-vibecoding`**（本仓库） | 造工作台、造 skill 的 skills | **造工作流本身** |
 
 没上过基础班也能用本仓库——但装上那个仓库，你会多一批现成的 skill 当范例，知道"一个立得住的 skill 长什么样"。
 

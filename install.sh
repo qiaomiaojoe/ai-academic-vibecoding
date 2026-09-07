@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
 # AI学术工作台开发（乔淼PhD · AI学术训练营·进阶班）· 一键安装 skills
-# 用法: curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-workbench/main/install.sh | bash
+# 用法: curl -fsSL https://raw.githubusercontent.com/qiaomiaojoe/ai-academic-vibecoding/main/install.sh | bash
 #
 set -e
 
-REPO="https://github.com/qiaomiaojoe/ai-academic-workbench.git"
+REPO="https://github.com/qiaomiaojoe/ai-academic-vibecoding.git"
 TMP_DIR="$(mktemp -d)"
 
 echo ""
@@ -70,6 +70,6 @@ echo "    1. 重启 Claude Code / Claude Desktop / Codex"
 echo "    2. 在你的项目目录里说: \"帮我搭我的工作台\""
 echo "    3. AI 会开始访谈你, 把你的方法整理成一份 SKILL.md"
 echo ""
-echo "  📚 说明: https://github.com/qiaomiaojoe/ai-academic-workbench"
-echo "  📝 反馈: https://github.com/qiaomiaojoe/ai-academic-workbench/issues"
+echo "  📚 说明: https://github.com/qiaomiaojoe/ai-academic-vibecoding"
+echo "  📝 反馈: https://github.com/qiaomiaojoe/ai-academic-vibecoding/issues"
 echo ""
