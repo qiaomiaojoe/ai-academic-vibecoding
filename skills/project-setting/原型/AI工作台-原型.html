@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的 AI 学术工作台</title>
+<!--
+  ═══════════════════════════════════════════════════════════════
+  AI 学术工作台 · 原型
+  乔淼PhD · AI学术训练营·进阶班 | 学员个人工作台起点
+
+  ── 你要改的东西都在下面 <script> 开头的四个常量里 ──────────
+  WB_NAME / WB_OWNER / WB_PURPOSE / WB_VERSION
+  导航、页脚、标签页标题都由它们自动填，不要在 HTML 里手写。
+
+  ── 版本约定 ──────────────────────────────────────────────
+    0.x  = 还在自己折腾，没给别人用
+    1.0  = 第一个真正拿来干活 / 给别人用的版本
+    1.x  = 之后的迭代
+  每改完一轮：WB_VERSION 加 0.1 + 在 工作台版本/CHANGELOG.md 记一条。
+  想冻结快照：在本文件夹跑 ./快照.sh
+
+  ── 这个工作台现在是空壳 ──────────────────────────────────
+  三张场景卡都是占位。第 2 讲用 workbench-builder 往里装第一个真场景。
+  想自己改：把本文件拖给 Claude Code / Codex，说「哪个部件 + 想要什么行为」。
+  ═══════════════════════════════════════════════════════════════
+-->
+<style>
+  :root {
+    --ink:#2c2416; --ink-strong:#1a1208; --muted:#8a7560; --faint:#a89a86;
+    --line:#ece6dc; --line-soft:#f3efe7; --card:#ffffff; --bg:#faf7f2;
+    --accent:#b8834a; --accent-dk:#9c6c39; --accent-sft:#fbf3e8;
+    --code-bg:#211a10; --code-ink:#ece3d2;
+    --nav-bg:#211a10; --nav-ink:#cdbfa6;
+    --ok:#5c7f52; --ok-sft:#eef3ec;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased; }
+  .shell { display:flex; min-height:100vh; align-items:stretch; }
+
+  .nav { width:246px; flex-shrink:0; background:var(--nav-bg); color:var(--nav-ink); padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  .nav .brand { font-size:10.5px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); font-weight:700; }
+  .nav h1 { font-size:17px; font-weight:800; color:#fff; margin-top:7px; letter-spacing:.3px; }
+  .nav .ver { font-size:11px; color:#7d6d58; margin-top:5px; }
+  .nav-group { font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:#7d6d58; font-weight:700; margin:26px 0 9px 4px; }
+  .nav-item { display:block; width:100%; text-align:left; background:none; border:none; color:var(--nav-ink); font-family:inherit;
+    font-size:13.5px; font-weight:600; padding:10px 12px; border-radius:10px; cursor:pointer; transition:background .15s,color .15s; line-height:1.4; }
+  .nav-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+  .nav-item.active { background:var(--accent); color:#fff; }
+  .nav-item .ni-sub { display:block; font-size:10.5px; font-weight:600; opacity:.62; margin-top:2px; letter-spacing:.3px; }
+  .nav-cur { margin-top:24px; border-top:1px solid rgba(255,255,255,.09); padding-top:16px; font-size:11.5px; color:#7d6d58; }
+  .nav-cur b { display:block; color:#e6dbc6; font-size:13px; font-weight:700; margin-top:3px; word-break:break-all; }
+
+  .main { flex:1; min-width:0; padding:38px 34px 70px; }
+  .wrap { max-width:840px; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  .ph-tag { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:1.4px; color:#fff; background:var(--accent); border-radius:6px; padding:3px 10px; }
+  .ph-tag.todo { background:var(--muted); }
+  .panel h2 { font-size:24px; font-weight:800; color:var(--ink-strong); margin-top:11px; letter-spacing:.3px; }
+  .ph-sub { font-size:13.5px; color:var(--muted); margin-top:9px; max-width:680px; }
+
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-top:18px;
+    box-shadow:0 1px 2px rgba(44,36,22,.03),0 6px 20px rgba(44,36,22,.04); }
+  .card h3 { font-size:15.5px; font-weight:700; color:var(--ink-strong); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .badge-sm { font-size:10px; font-weight:700; letter-spacing:.5px; color:var(--accent-dk); background:var(--accent-sft); border:1px solid #f0e2ce; border-radius:6px; padding:2px 8px; }
+  .badge-sm.ok { color:var(--ok); background:var(--ok-sft); border-color:#dce6d8; }
+  .hint { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.65; }
+  .hint b { color:var(--accent-dk); }
+
+  .zone-input  { background:#fdf6ee; }
+  .zone-skill  { background:#fbf2e0; border-left:4px solid var(--accent); }
+  .zone-action { background:#f3f2ea; }
+
+  .fields { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin-top:14px; }
+  .fields.one { grid-template-columns:1fr; }
+  @media (max-width:720px){ .fields { grid-template-columns:1fr; } }
+  .field label { display:block; font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:5px; }
+  input[type="text"], textarea, select {
+    width:100%; border:1.5px solid var(--line); border-radius:10px; padding:10px 13px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:#fff; transition:border-color .18s,box-shadow .18s; }
+  textarea { min-height:74px; resize:vertical; line-height:1.6; }
+  input:focus, textarea:focus, select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(184,131,74,.13); }
+  select { appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%239c6c39' stroke-width='1.6' stroke-linecap='round'/></svg>"); background-repeat:no-repeat; background-position:right 13px center; padding-right:34px; cursor:pointer; }
+
+  .actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  button.btn { border:none; border-radius:10px; padding:11px 20px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .18s,transform .05s; }
+  .btn-primary { background:var(--accent); color:#fff; box-shadow:0 2px 8px rgba(184,131,74,.28); }
+  .btn-primary:hover { background:var(--accent-dk); }
+  .btn-ghost { background:var(--accent-sft); color:var(--accent-dk); border:1px solid #f0e2ce; }
+  .btn-ghost:hover { background:#f8ecda; }
+  button.btn:active { transform:translateY(1px); }
+
+  .preview { margin-top:18px; }
+  .preview-empty { border:1.5px dashed var(--line); border-radius:12px; padding:26px; text-align:center; color:var(--faint); font-size:13px; background:#fdfbf7; }
+  .seg { border-radius:13px; overflow:hidden; margin-top:12px; }
+  .seg-head { display:flex; align-items:center; gap:8px; padding:10px 15px; font-size:12px; font-weight:700; }
+  .seg-head .badge { font-size:10px; letter-spacing:.5px; padding:2px 7px; border-radius:6px; }
+  .seg pre { margin:0; padding:15px 17px; white-space:pre-wrap; word-wrap:break-word; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; line-height:1.65; }
+  .seg--code { background:var(--code-bg); }
+  .seg--code .seg-head { background:rgba(255,255,255,.04); color:#d9cdb6; }
+  .seg--code .seg-head .badge { background:var(--accent); color:#fff; }
+  .seg--code pre { color:var(--code-ink); }
+  .seg--skill { background:var(--accent-sft); border:1.5px solid #e2caa4; }
+  .seg--skill .seg-head { color:var(--accent-dk); }
+  .seg--skill .seg-head .badge { background:var(--accent); color:#fff; }
+  .seg--skill pre { color:#5f4a2a; }
+
+  code.k { font-family:"SF Mono",Menlo,monospace; font-size:11.5px; background:var(--line-soft); color:var(--accent-dk); padding:1px 6px; border-radius:5px; }
+  .todo-box { border:1.5px dashed #d9c4a2; background:#fdf8f0; border-radius:12px; padding:16px 18px; margin-top:14px; font-size:13px; color:var(--accent-dk); line-height:1.7; }
+  .todo-box b { color:var(--ink-strong); }
+
+  .toast { position:fixed; left:50%; bottom:44px; transform:translateX(-50%) translateY(8px);
+    background:var(--ink-strong); color:#fff; border-radius:10px; padding:10px 18px; font-size:13px;
+    opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; box-shadow:0 8px 26px rgba(26,18,8,.32); z-index:50; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  footer { margin-top:44px; padding-top:22px; border-top:1px solid var(--line); color:var(--faint); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <nav class="nav">
+    <div class="brand" id="navBrand"></div>
+    <h1 id="navName"></h1>
+    <div class="ver"><span id="verNav"></span></div>
+
+    <div class="nav-group">工作台</div>
+    <button class="nav-item active" data-p="entry" onclick="goPanel('entry')">入口<span class="ni-sub">这个项目的共享信息</span></button>
+
+    <div class="nav-group">场景卡</div>
+    <button class="nav-item" data-p="s1" onclick="goPanel('s1')">场景 ①<span class="ni-sub" id="nav-s1">待填</span></button>
+    <button class="nav-item" data-p="s2" onclick="goPanel('s2')">场景 ②<span class="ni-sub" id="nav-s2">待填</span></button>
+    <button class="nav-item" data-p="s3" onclick="goPanel('s3')">场景 ③<span class="ni-sub" id="nav-s3">待填</span></button>
+
+    <div class="nav-cur">当前项目<b id="navCur">还没填</b></div>
+  </nav>
+
+  <main class="main"><div class="wrap">
+
+  <!-- ═══════════ 入口 ═══════════ -->
+  <section class="panel active" id="panel-entry">
+    <span class="ph-tag">入口</span>
+    <h2>这个项目的共享信息</h2>
+    <div class="ph-sub" id="purposeLine"></div>
+
+    <div class="card zone-input">
+      <h3>填一次，每张场景卡都会自动带上 <span class="badge-sm">共享 context</span></h3>
+      <div class="hint">这些值会拼进<b>每一张场景卡</b>生成的 prompt 里，不用每次重说。存在这台电脑的浏览器里。</div>
+      <div class="fields">
+        <div class="field"><label>研究项目 / 课题名</label><input type="text" id="p-name" placeholder="例：生成式AI与高校教师写作实践" oninput="saveShared()"></div>
+        <div class="field"><label>学科领域</label><input type="text" id="p-field" placeholder="例：教育技术学" oninput="saveShared()"></div>
+      </div>
+      <div class="fields one">
+        <div class="field"><label>一句话说清这个课题在研究什么</label>
+          <textarea id="p-topic" placeholder="例：高校教师在论文写作中怎么用生成式AI，用了之后写作实践发生了什么变化。" oninput="saveShared()"></textarea></div>
+      </div>
+      <div class="fields">
+        <div class="field"><label>产出落到哪个文件夹</label><input type="text" id="p-out" value="产出/" oninput="saveShared()"></div>
+        <div class="field"><label>产出语言</label>
+          <select id="p-lang" onchange="saveShared()">
+            <option value="中文">中文</option>
+            <option value="英文">英文</option>
+            <option value="中文正文，术语附英文">中文正文，术语附英文</option>
+          </select></div>
+      </div>
+      <div class="hint" id="savedTip" style="color:var(--ok);"></div>
+    </div>
+
+    <div class="card">
+      <h3>这个工作台现在是空壳 <span class="badge-sm">正常</span></h3>
+      <div class="hint">
+        右边三张场景卡都是<b>占位</b>——它们还不知道你要干什么。<br><br>
+        <b>装第一个真场景：</b>把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」，它会访谈你，把你最常重复做的那个研究环节做成场景 ①。<br>
+        <b>自己改：</b>说「<b>哪个部件 + 想要什么行为</b>」，像跟人类程序员提需求。
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 场景卡 ①②③（占位，结构完全一致）═══════════ -->
+  <section class="panel" id="panel-s1"></section>
+  <section class="panel" id="panel-s2"></section>
+  <section class="panel" id="panel-s3"></section>
+
+  <footer id="foot"></footer>
+
+  </div></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   改这四个常量，别在 HTML 里手写这些值
+   ═══════════════════════════════════════════════════════════ */
+const WB_NAME    = "我的 AI 学术工作台";
+const WB_OWNER   = "";
+const WB_PURPOSE = "【待补：这个工作台是干什么的——一句话】";
+
+/* 版本号 · 全站唯一来源
+   0.x = 还在自己折腾；1.0 = 第一个真正拿来干活的版本
+   每改完一轮 +0.1，并在 工作台版本/CHANGELOG.md 记一条 */
+const WB_VERSION = "0.1";
+
+/* ═══════════ 三张场景卡的定义 —— 第 2 讲往这里填 ═══════════ */
+const SCENES = [
+  { id:"s1", name:"【待填：场景①叫什么】", skill:"【待填：调用哪个 skill】",
+    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪，如 产出/精读笔记.md】" },
+  { id:"s2", name:"【待填：场景②叫什么】", skill:"【待填：调用哪个 skill】",
+    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪】" },
+  { id:"s3", name:"【待填：场景③叫什么】", skill:"【待填：调用哪个 skill】",
+    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪】" }
+];
+
+/* ═══════════ 通用 ═══════════ */
+const LAST = {};
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function val(id){ const el=document.getElementById(id); return el ? (el.value||"").trim() : ""; }
+
+function goPanel(p){
+  document.querySelectorAll(".panel").forEach(s=>s.classList.remove("active"));
+  document.getElementById("panel-"+p).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active", b.dataset.p===p));
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1900);
+}
+async function copyText(text, msg){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+  toast(msg || "已复制，去粘给 Claude Code / Codex 吧");
+}
+function copyLast(key){
+  if(!LAST[key]){ toast("先点「生成 prompt」"); return; }
+  copyText(LAST[key], "已复制完整 prompt");
+}
+
+/* 三段渲染：深色=机械件，暖色=调用 skill */
+function renderPreview(elId, key, parts){
+  LAST[key] = [parts.context, parts.skill, parts.output].filter(Boolean).join("\n\n");
+  const seg = (cls,badge,lbl,text)=> !text ? "" : `
+    <div class="seg ${cls}">
+      <div class="seg-head"><span class="badge">${badge}</span><span>${lbl}</span></div>
+      <pre>${esc(text)}</pre>
+    </div>`;
+  document.getElementById(elId).innerHTML =
+    seg("seg--code","context","机械件 · 来自部件①", parts.context) +
+    seg("seg--skill","skill","调用你的 skill · 部件②", parts.skill) +
+    seg("seg--code","落盘","机械件 · 部件③", parts.output);
+}
+
+/* ═══════════ 入口的共享信息（localStorage）═══════════ */
+const LS_KEY = "my-workbench-shared";
+const SHARED_IDS = ["p-name","p-field","p-topic","p-out","p-lang"];
+
+function saveShared(){
+  const d={}; SHARED_IDS.forEach(i=>d[i]=val(i));
+  try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e){}
+  document.getElementById("navCur").textContent = d["p-name"] || "还没填";
+  document.getElementById("savedTip").textContent = d["p-name"] ? "已记住，换张卡也带着" : "";
+}
+function loadShared(){
+  let d={};
+  try { const raw=localStorage.getItem(LS_KEY); if(raw) d=JSON.parse(raw); } catch(e){}
+  SHARED_IDS.forEach(i=>{ const el=document.getElementById(i); if(el && d[i]) el.value=d[i]; });
+  document.getElementById("navCur").textContent = (d["p-name"]||"").trim() || "还没填";
+}
+function sharedContext(){
+  const L=[];
+  if(val("p-name"))  L.push("研究项目："+val("p-name"));
+  if(val("p-field")) L.push("学科领域："+val("p-field"));
+  if(val("p-topic")) L.push("这个课题在研究什么："+val("p-topic"));
+  L.push("产出语言："+val("p-lang"));
+  return L.join("\n");
+}
+
+/* ═══════════ 场景卡：三张结构一致，用同一段代码生成 ═══════════ */
+function sceneHTML(sc, idx){
+  return `
+    <span class="ph-tag todo">场景 ${"①②③"[idx]} · 占位</span>
+    <h2>${esc(sc.name)}</h2>
+    <div class="ph-sub">这张卡还没装东西。三个部件的架子在，填上就能用。</div>
+
+    <div class="todo-box">
+      <b>怎么把它填起来（第 2 讲会带着做）：</b><br>
+      把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」——它会访谈你，
+      问清这个环节你平时怎么做，然后把方法写成一份 skill，再回来把这张卡填好。
+    </div>
+
+    <div class="card zone-input">
+      <h3>① 交互输入 <span class="badge-sm">这个场景每次要填什么</span></h3>
+      <div class="hint">下面两个零件是占位示例。真正要几个、是什么类型（下拉 / 勾选 / 上传），由这个场景本身决定。</div>
+      <div class="fields one">
+        <div class="field"><label>这一次的材料 / 输入（占位）</label>
+          <textarea id="${sc.id}-in" placeholder="例：这次要处理的那篇文献标题、那段数据、那个问题"></textarea></div>
+      </div>
+      <div class="fields">
+        <div class="field"><label>这一次的特别要求（占位）</label>
+          <input type="text" id="${sc.id}-note" placeholder="留空就没有"></div>
+        <div class="field"><label>要先读上一个场景的产出吗</label>
+          <input type="text" id="${sc.id}-up" placeholder="例：产出/文献清单.md（没有就留空）"></div>
+      </div>
+    </div>
+
+    <div class="card zone-skill">
+      <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
+      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="fields">
+        <div class="field"><label>skill 名</label><input type="text" id="${sc.id}-skill" value="${esc(sc.skill)}"></div>
+        <div class="field"><label>一句话职责</label><input type="text" id="${sc.id}-duty" value="${esc(sc.duty)}"></div>
+      </div>
+    </div>
+
+    <div class="card zone-action">
+      <h3>③ 落盘 <span class="badge-sm">决定下一个场景能不能接上</span></h3>
+      <div class="fields one">
+        <div class="field"><label>产出写到哪（相对路径）</label><input type="text" id="${sc.id}-out" value="${esc(sc.out)}"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="genScene('${sc.id}')">生成 prompt</button>
+        <button class="btn btn-ghost" onclick="copyLast('${sc.id}')">一键复制</button>
+      </div>
+      <div class="preview" id="${sc.id}-preview"><div class="preview-empty">填完上面，点「生成 prompt」。</div></div>
+    </div>`;
+}
+
+function genScene(id){
+  const sc = SCENES.find(x=>x.id===id);
+  const inp=val(id+"-in"), note=val(id+"-note"), up=val(id+"-up");
+  const skill=val(id+"-skill"), duty=val(id+"-duty"), out=val(id+"-out");
+
+  let context = "## 背景（context）\n\n【项目共享信息】\n" + sharedContext() + "\n\n【本次输入】";
+  context += "\n场景：" + sc.name;
+  if(inp)  context += "\n这次要处理的：\n" + inp;
+  if(note) context += "\n这次的特别要求：" + note;
+  if(up)   context += "\n\n先读上一步的产出：`" + up + "`";
+
+  let skillCall = "## 调用 skill\n\n请使用「" + skill + "」skill 完成这个场景"
+    + (duty ? "（它负责：" + duty + "）" : "") + "。\n严格遵循该 skill 内定义的步骤、判断标准、硬约束与停点。";
+
+  let output = "## 输出落盘\n\n- 产出写到 `" + out + "`，Markdown 格式，开头注明日期和本次输入摘要\n"
+    + (up ? "- 跑之前先读 `" + up + "`；**读不到就明说没读到，不要脑补上游产出。**\n" : "")
+    + "- 落盘一律用相对路径。";
+
+  renderPreview(id+"-preview", id, { context, skill:skillCall, output });
+  toast("生成好了，往下看三块");
+}
+
+/* ═══════════ 起飞 ═══════════ */
+SCENES.forEach((sc,i)=>{
+  document.getElementById("panel-"+sc.id).innerHTML = sceneHTML(sc,i);
+  document.getElementById("nav-"+sc.id).textContent = sc.name.replace(/^【待填：|】$/g,"").slice(0,12) || "待填";
+});
+document.getElementById("navBrand").textContent = WB_OWNER || "AI学术训练营·进阶班";
+document.getElementById("navName").textContent  = WB_NAME;
+document.getElementById("verNav").textContent   = "v" + WB_VERSION;
+document.getElementById("purposeLine").textContent = WB_PURPOSE;
+document.title = WB_NAME + " v" + WB_VERSION;
+document.getElementById("foot").innerHTML =
+  esc(WB_NAME) + " v" + WB_VERSION + (WB_OWNER ? " ｜ " + esc(WB_OWNER) : "") +
+  "<br>基于 乔淼PhD · AI学术训练营·进阶班 工作台原型搭建";
+loadShared();
+</script>
+</body>
+</html>
