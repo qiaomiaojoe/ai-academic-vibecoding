@@ -179,10 +179,183 @@
     </div>
   </section>
 
-  <!-- ═══════════ 场景卡 ①②③（占位，结构完全一致）═══════════ -->
-  <section class="panel" id="panel-s1"></section>
-  <section class="panel" id="panel-s2"></section>
-  <section class="panel" id="panel-s3"></section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       场景卡 1 · 占位
+       三个部件都在。第 2 讲用 workbench-builder 往里装真东西，
+       或者你自己把这段拖给 AI 说「哪个部件 + 想要什么行为」。
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-s1">
+    <span class="ph-tag todo">场景 ① · 占位</span>
+    <h2 id="s1-title">【待填：这张卡叫什么】</h2>
+    <div class="ph-sub">这张卡还没装东西。三个部件的架子在，填上就能用。</div>
+
+    <div class="todo-box">
+      <b>怎么把它填起来（第 2 讲会带着做）：</b><br>
+      把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」——它会访谈你，
+      问清这个环节你平时怎么做，把方法写成一份 skill，再回来把这张卡填好。
+    </div>
+
+    <!-- ◆ 部件① 交互输入 —— 加零件在这里加，加完必须去下面 genS1() 里取值 -->
+    <div class="card zone-input">
+      <h3>① 交互输入 <span class="badge-sm">这个场景每次要填什么</span></h3>
+      <div class="hint">下面是占位零件。真正要几个、什么类型（下拉 / 勾选 / 上传），由这个场景本身决定。</div>
+      <div class="fields one">
+        <div class="field"><label>这一次的材料 / 输入</label>
+          <textarea id="s1-in" placeholder="例：这次要处理的那篇文献、那段数据、那个问题"></textarea></div>
+      </div>
+      <div class="fields">
+        <div class="field"><label>这一次的特别要求</label>
+          <input type="text" id="s1-note" placeholder="留空就没有"></div>
+        <div class="field"><label>要先读上一个场景的产出吗</label>
+          <input type="text" id="s1-up" placeholder="例：产出/文献清单.md（没有就留空）"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <div class="card zone-skill">
+      <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
+      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="fields">
+        <div class="field"><label>skill 名</label>
+          <input type="text" id="s1-skill" value="【待填：调用哪个 skill】"></div>
+        <div class="field"><label>一句话职责</label>
+          <input type="text" id="s1-duty" value="【待填：它负责什么】"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件③ 落盘 -->
+    <div class="card zone-action">
+      <h3>③ 落盘 <span class="badge-sm">决定下一个场景能不能接上</span></h3>
+      <div class="fields one">
+        <div class="field"><label>产出写到哪（相对路径）</label>
+          <input type="text" id="s1-out" value="【待填：如 产出/精读笔记.md】"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="genS1()">生成 prompt</button>
+        <button class="btn btn-ghost" onclick="copyLast('s1')">一键复制</button>
+      </div>
+      <div class="preview" id="s1-preview"><div class="preview-empty">填完上面，点「生成 prompt」。</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       场景卡 2 · 占位
+       三个部件都在。第 2 讲用 workbench-builder 往里装真东西，
+       或者你自己把这段拖给 AI 说「哪个部件 + 想要什么行为」。
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-s2">
+    <span class="ph-tag todo">场景 ② · 占位</span>
+    <h2 id="s2-title">【待填：这张卡叫什么】</h2>
+    <div class="ph-sub">这张卡还没装东西。三个部件的架子在，填上就能用。</div>
+
+    <div class="todo-box">
+      <b>怎么把它填起来（第 2 讲会带着做）：</b><br>
+      把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」——它会访谈你，
+      问清这个环节你平时怎么做，把方法写成一份 skill，再回来把这张卡填好。
+    </div>
+
+    <!-- ◆ 部件① 交互输入 —— 加零件在这里加，加完必须去下面 genS2() 里取值 -->
+    <div class="card zone-input">
+      <h3>① 交互输入 <span class="badge-sm">这个场景每次要填什么</span></h3>
+      <div class="hint">下面是占位零件。真正要几个、什么类型（下拉 / 勾选 / 上传），由这个场景本身决定。</div>
+      <div class="fields one">
+        <div class="field"><label>这一次的材料 / 输入</label>
+          <textarea id="s2-in" placeholder="例：这次要处理的那篇文献、那段数据、那个问题"></textarea></div>
+      </div>
+      <div class="fields">
+        <div class="field"><label>这一次的特别要求</label>
+          <input type="text" id="s2-note" placeholder="留空就没有"></div>
+        <div class="field"><label>要先读上一个场景的产出吗</label>
+          <input type="text" id="s2-up" placeholder="例：产出/文献清单.md（没有就留空）"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <div class="card zone-skill">
+      <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
+      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="fields">
+        <div class="field"><label>skill 名</label>
+          <input type="text" id="s2-skill" value="【待填：调用哪个 skill】"></div>
+        <div class="field"><label>一句话职责</label>
+          <input type="text" id="s2-duty" value="【待填：它负责什么】"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件③ 落盘 -->
+    <div class="card zone-action">
+      <h3>③ 落盘 <span class="badge-sm">决定下一个场景能不能接上</span></h3>
+      <div class="fields one">
+        <div class="field"><label>产出写到哪（相对路径）</label>
+          <input type="text" id="s2-out" value="【待填：如 产出/精读笔记.md】"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="genS2()">生成 prompt</button>
+        <button class="btn btn-ghost" onclick="copyLast('s2')">一键复制</button>
+      </div>
+      <div class="preview" id="s2-preview"><div class="preview-empty">填完上面，点「生成 prompt」。</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       场景卡 3 · 占位
+       三个部件都在。第 2 讲用 workbench-builder 往里装真东西，
+       或者你自己把这段拖给 AI 说「哪个部件 + 想要什么行为」。
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-s3">
+    <span class="ph-tag todo">场景 ③ · 占位</span>
+    <h2 id="s3-title">【待填：这张卡叫什么】</h2>
+    <div class="ph-sub">这张卡还没装东西。三个部件的架子在，填上就能用。</div>
+
+    <div class="todo-box">
+      <b>怎么把它填起来（第 2 讲会带着做）：</b><br>
+      把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」——它会访谈你，
+      问清这个环节你平时怎么做，把方法写成一份 skill，再回来把这张卡填好。
+    </div>
+
+    <!-- ◆ 部件① 交互输入 —— 加零件在这里加，加完必须去下面 genS3() 里取值 -->
+    <div class="card zone-input">
+      <h3>① 交互输入 <span class="badge-sm">这个场景每次要填什么</span></h3>
+      <div class="hint">下面是占位零件。真正要几个、什么类型（下拉 / 勾选 / 上传），由这个场景本身决定。</div>
+      <div class="fields one">
+        <div class="field"><label>这一次的材料 / 输入</label>
+          <textarea id="s3-in" placeholder="例：这次要处理的那篇文献、那段数据、那个问题"></textarea></div>
+      </div>
+      <div class="fields">
+        <div class="field"><label>这一次的特别要求</label>
+          <input type="text" id="s3-note" placeholder="留空就没有"></div>
+        <div class="field"><label>要先读上一个场景的产出吗</label>
+          <input type="text" id="s3-up" placeholder="例：产出/文献清单.md（没有就留空）"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <div class="card zone-skill">
+      <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
+      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="fields">
+        <div class="field"><label>skill 名</label>
+          <input type="text" id="s3-skill" value="【待填：调用哪个 skill】"></div>
+        <div class="field"><label>一句话职责</label>
+          <input type="text" id="s3-duty" value="【待填：它负责什么】"></div>
+      </div>
+    </div>
+
+    <!-- ◆ 部件③ 落盘 -->
+    <div class="card zone-action">
+      <h3>③ 落盘 <span class="badge-sm">决定下一个场景能不能接上</span></h3>
+      <div class="fields one">
+        <div class="field"><label>产出写到哪（相对路径）</label>
+          <input type="text" id="s3-out" value="【待填：如 产出/精读笔记.md】"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="genS3()">生成 prompt</button>
+        <button class="btn btn-ghost" onclick="copyLast('s3')">一键复制</button>
+      </div>
+      <div class="preview" id="s3-preview"><div class="preview-empty">填完上面，点「生成 prompt」。</div></div>
+    </div>
+  </section>
 
   <footer id="foot"></footer>
 
@@ -202,16 +375,6 @@ const WB_PURPOSE = "【待补：这个工作台是干什么的——一句话】
    0.x = 还在自己折腾；1.0 = 第一个真正拿来干活的版本
    每改完一轮 +0.1，并在 工作台版本/CHANGELOG.md 记一条 */
 const WB_VERSION = "0.1";
-
-/* ═══════════ 三张场景卡的定义 —— 第 2 讲往这里填 ═══════════ */
-const SCENES = [
-  { id:"s1", name:"【待填：场景①叫什么】", skill:"【待填：调用哪个 skill】",
-    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪，如 产出/精读笔记.md】" },
-  { id:"s2", name:"【待填：场景②叫什么】", skill:"【待填：调用哪个 skill】",
-    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪】" },
-  { id:"s3", name:"【待填：场景③叫什么】", skill:"【待填：调用哪个 skill】",
-    duty:"【待填：这个 skill 一句话职责】", out:"【待填：产出写到哪】" }
-];
 
 /* ═══════════ 通用 ═══════════ */
 const LAST = {};
@@ -278,63 +441,18 @@ function sharedContext(){
   return L.join("\n");
 }
 
-/* ═══════════ 场景卡：三张结构一致，用同一段代码生成 ═══════════ */
-function sceneHTML(sc, idx){
-  return `
-    <span class="ph-tag todo">场景 ${"①②③"[idx]} · 占位</span>
-    <h2>${esc(sc.name)}</h2>
-    <div class="ph-sub">这张卡还没装东西。三个部件的架子在，填上就能用。</div>
-
-    <div class="todo-box">
-      <b>怎么把它填起来（第 2 讲会带着做）：</b><br>
-      把本文件拖给 Claude Code / Codex，说「<b>帮我搭我的工作台</b>」——它会访谈你，
-      问清这个环节你平时怎么做，然后把方法写成一份 skill，再回来把这张卡填好。
-    </div>
-
-    <div class="card zone-input">
-      <h3>① 交互输入 <span class="badge-sm">这个场景每次要填什么</span></h3>
-      <div class="hint">下面两个零件是占位示例。真正要几个、是什么类型（下拉 / 勾选 / 上传），由这个场景本身决定。</div>
-      <div class="fields one">
-        <div class="field"><label>这一次的材料 / 输入（占位）</label>
-          <textarea id="${sc.id}-in" placeholder="例：这次要处理的那篇文献标题、那段数据、那个问题"></textarea></div>
-      </div>
-      <div class="fields">
-        <div class="field"><label>这一次的特别要求（占位）</label>
-          <input type="text" id="${sc.id}-note" placeholder="留空就没有"></div>
-        <div class="field"><label>要先读上一个场景的产出吗</label>
-          <input type="text" id="${sc.id}-up" placeholder="例：产出/文献清单.md（没有就留空）"></div>
-      </div>
-    </div>
-
-    <div class="card zone-skill">
-      <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
-      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
-      <div class="fields">
-        <div class="field"><label>skill 名</label><input type="text" id="${sc.id}-skill" value="${esc(sc.skill)}"></div>
-        <div class="field"><label>一句话职责</label><input type="text" id="${sc.id}-duty" value="${esc(sc.duty)}"></div>
-      </div>
-    </div>
-
-    <div class="card zone-action">
-      <h3>③ 落盘 <span class="badge-sm">决定下一个场景能不能接上</span></h3>
-      <div class="fields one">
-        <div class="field"><label>产出写到哪（相对路径）</label><input type="text" id="${sc.id}-out" value="${esc(sc.out)}"></div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-primary" onclick="genScene('${sc.id}')">生成 prompt</button>
-        <button class="btn btn-ghost" onclick="copyLast('${sc.id}')">一键复制</button>
-      </div>
-      <div class="preview" id="${sc.id}-preview"><div class="preview-empty">填完上面，点「生成 prompt」。</div></div>
-    </div>`;
-}
-
-function genScene(id){
-  const sc = SCENES.find(x=>x.id===id);
+/* ═══════════════════════════════════════════════════════════
+   三张场景卡各有一个生成函数，互不影响。
+   —— 加了交互零件，就要回到对应的 genSn() 里把它取出来拼进 context。
+      部件① 和部件③ 是绑在一起的：收了值，得有人把值送出去。
+   ═══════════════════════════════════════════════════════════ */
+function buildScene(id){
   const inp=val(id+"-in"), note=val(id+"-note"), up=val(id+"-up");
   const skill=val(id+"-skill"), duty=val(id+"-duty"), out=val(id+"-out");
+  const title=document.getElementById(id+"-title").textContent.trim();
 
   let context = "## 背景（context）\n\n【项目共享信息】\n" + sharedContext() + "\n\n【本次输入】";
-  context += "\n场景：" + sc.name;
+  context += "\n场景：" + title;
   if(inp)  context += "\n这次要处理的：\n" + inp;
   if(note) context += "\n这次的特别要求：" + note;
   if(up)   context += "\n\n先读上一步的产出：`" + up + "`";
@@ -350,10 +468,14 @@ function genScene(id){
   toast("生成好了，往下看三块");
 }
 
+function genS1(){ buildScene("s1"); }
+function genS2(){ buildScene("s2"); }
+function genS3(){ buildScene("s3"); }
+
 /* ═══════════ 起飞 ═══════════ */
-SCENES.forEach((sc,i)=>{
-  document.getElementById("panel-"+sc.id).innerHTML = sceneHTML(sc,i);
-  document.getElementById("nav-"+sc.id).textContent = sc.name.replace(/^【待填：|】$/g,"").slice(0,12) || "待填";
+["s1","s2","s3"].forEach(id=>{
+  const t = document.getElementById(id+"-title").textContent.replace(/^【待填：|】$/g,"").trim();
+  document.getElementById("nav-"+id).textContent = t.slice(0,12) || "待填";
 });
 document.getElementById("navBrand").textContent = WB_OWNER || "AI学术训练营·进阶班";
 document.getElementById("navName").textContent  = WB_NAME;
