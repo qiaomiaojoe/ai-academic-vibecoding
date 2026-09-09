@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "name": "通用协作工作台示例",
+  "version": "0.1",
+  "start": "process",
+  "roles": [
+    { "id": "maker", "name": "内容处理", "instructions": "根据用户提供的目标和材料形成任务产出。缺少事实或处理依据时列出缺项，建议人工判断。" },
+    { "id": "checker", "name": "独立核对", "instructions": "独立核对任务材料是否满足用户目标，列出问题及依据。你没有看到内容处理角色的输出，不得声称已核查其产出。" },
+    { "id": "integrator", "name": "结果汇总", "instructions": "读取已验收的上游角色结果，逐项处理分歧，整理完整结果与未解决问题。需要用户决定时明确说明。" }
+  ],
+  "steps": [
+    { "id": "process", "name": "独立处理与核对", "roles": ["maker", "checker"], "next": "integrate", "failTo": "process", "maxAttempts": 3,
+      "checks": [
+        { "id": "maker-output", "name": "内容处理有输出", "type": "nonempty", "role": "maker" },
+        { "id": "checker-output", "name": "独立核对有输出", "type": "nonempty", "role": "checker" },
+        { "id": "input-decision", "name": "判断材料和处理方向是否可继续", "type": "human" }
+      ]
+    },
+    { "id": "integrate", "name": "汇总与验收", "roles": ["integrator"], "next": null, "failTo": "process", "maxAttempts": 3,
+      "checks": [
+        { "id": "integrated-output", "name": "汇总结果非空", "type": "nonempty", "role": "integrator" },
+        { "id": "final-decision", "name": "判断结果是否满足本次任务要求", "type": "human" }
+      ]
+    }
+  ]
+}

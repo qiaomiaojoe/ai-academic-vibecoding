@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI 工作台</title><link rel="stylesheet" href="style.css"></head>
+<body><main><header><p>乔淼PhD · AI学术训练营 · 由 AI开发工作台生成</p><h1 id="name">工作台</h1><p id="mode"></p></header>
+<section><h2>开始任务</h2><label for="input">任务要求与材料正文</label><textarea id="input" placeholder="粘贴本次需要处理的内容。角色只收到这里的材料及已验收上游结果。"></textarea><button id="create">创建任务</button><label for="runs">继续已有任务</label><select id="runs"><option value="">请选择</option></select></section>
+<p id="error" role="alert"></p><section id="task" hidden><h2 id="status"></h2><div id="flow" class="flow"></div><p id="current"></p><button id="advance">执行当前步骤</button><button id="export">导出运行证据</button>
+<div id="review" hidden><h3>需要你的判断</h3><label for="note">决定依据（必填）</label><textarea id="note"></textarea><button id="approve">确认通过</button><button id="reject">退回修改</button></div>
+<h3>角色结果与验收证据</h3><div id="evidence"></div><details><summary>全部运行记录</summary><pre id="history"></pre></details></section></main><script src="app.js"></script></body></html>

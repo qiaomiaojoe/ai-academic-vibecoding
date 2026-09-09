@@ -1,0 +1,76 @@
+async (page) => {
+  const checks=[];
+  const check=(yes,label)=>{if(!yes) throw new Error(label); checks.push(label);};
+  const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+  const original=await page.evaluate(()=>localStorage.getItem('aidev-workbench-projects'));
+  try {
+  // v1.0-compatible storage fixture; restore the original data after testing.
+  await page.evaluate(()=>localStorage.setItem('aidev-workbench-projects',JSON.stringify({current:null,projects:[{name:'验收项目甲',field:'人文社科',at:'2026-09-08'},{name:'验收项目乙',field:'教育',at:'2026-09-08'}]})));
+  await page.reload();
+  const nav=key=>page.locator('.nav-item[data-p="'+key+'"]');
+  await nav('flow').click();
+  await page.locator('#panel-flow .btn-primary').click();
+  check(await page.locator('#toast').innerText()==='先选入口页的项目，或填写已有项目文件夹','missing project blocks generation');
+  await nav('entry').click();
+  await page.locator('.recent').filter({hasText:'验收项目甲'}).click();
+  await nav('flow').click();
+  await page.locator('#devLocation summary').click();
+  await page.locator('#d-root').fill('/tmp/验收项目甲');
+  await page.locator('#d-html').fill('工作台/甲.html');
+  await page.locator('#d-design').fill('设计/投稿设计.md');
+  await page.locator('#f-request').fill('选刊与回复审稿，作者确认再执行 <b>原文</b>');
+  await page.locator('#panel-flow .btn-primary').click();
+  let text=await page.locator('#flowPreview').innerText();
+  check(text.includes('/tmp/验收项目甲')&&text.includes('设计/投稿设计.md')&&text.includes('甲.html'),'design carries project and paths');
+  check(text.includes('本次先做设计，不自动搭建')&&text.includes('<b>原文</b>'),'design-only scope and literal input preserved');
+  check(await page.locator('#flowPreview pre b').count()===0,'preview escapes user HTML');
+  await page.locator('#f-request').fill('补齐全部场景');
+  check(await page.evaluate(()=>!LAST.flow),'editing input invalidates copied prompt');
+  await page.locator('#f-mode').selectOption('build');
+  await page.locator('#panel-flow .btn-primary').click();
+  text=await page.locator('#flowPreview').innerText();
+  check(text.includes('不另建第二个工作台')&&text.includes('按设计搭建场景'),'build targets original workbench');
+  await nav('forge').click();
+  await page.locator('#s-name').fill('../bad');
+  await page.locator('#panel-forge .btn-primary').click();
+  check(await page.evaluate(()=>!LAST.forge),'invalid skill name cannot generate a file path');
+  await page.locator('#s-name').fill('review-response');
+  await page.locator('#s-mode').selectOption('revise');
+  await page.locator('#s-type').selectOption('specification');
+  await page.locator('#s-src').fill('skills/review-response/SKILL.md');
+  await page.locator('#s-notes').fill('保留旧规则，新增本刊指南的例外');
+  await page.locator('#s-scene').fill('S3 审稿回复');
+  await page.locator('#panel-forge .btn-primary').click();
+  text=await page.locator('#forgePreview').innerText();
+  check(text.includes('修订已有 skill')&&text.includes('S3 审稿回复')&&text.includes('设计/投稿设计.md'),'forge revision binds selected scene and design');
+  await page.locator('#s-bind').uncheck();
+  await page.locator('#s-platform').selectOption('claude');
+  await page.locator('#panel-forge .btn-primary').click();
+  text=await page.locator('#forgePreview').innerText();
+  check(text.includes('独立制作')&&!text.includes('/tmp/验收项目甲')&&!text.includes('S3 审稿回复'),'standalone forge excludes project binding');
+  check(text.includes('${CODEX_HOME:-$HOME/.codex}')&&text.includes('~/.claude/skills/'),'platform paths remain literal instructions');
+  await nav('flow').click();
+  await page.locator('#panel-flow .btn-primary').click();
+  text=await page.locator('#flowPreview').innerText();
+  check(text.includes('搭建完成后立即调用同一套已核实开发工具中的 workbench-validator')&&text.includes('技术修复与复测'),'building includes automatic trial and repair');
+  await nav('entry').click();
+  await page.locator('.recent').filter({hasText:'验收项目乙'}).click();
+  await nav('flow').click();
+  check(await page.locator('#d-root').inputValue()===''&&await page.locator('#d-design').inputValue()==='工作台设计.md','project switch resets path to its own settings');
+  check(await page.locator('#f-request').inputValue()==='','project switch clears task-specific material');
+  check(await page.evaluate(()=>!LAST.flow&&!LAST.forge),'project switch clears all copied prompts');
+  await nav('entry').click();
+  await page.locator('.recent').filter({hasText:'验收项目甲'}).click();
+  await page.reload();
+  await nav('flow').click();
+  check(await page.locator('#d-root').inputValue()==='/tmp/验收项目甲'&&await page.locator('#d-design').inputValue()==='设计/投稿设计.md','v1.0 storage upgraded and project settings survive reload');
+  const ids=await page.locator('[id]').evaluateAll(els=>els.map(e=>e.id));
+  check(ids.length===new Set(ids).size,'no duplicate DOM IDs');
+  check(errors.length===0,'no browser JavaScript errors');
+  check(await page.locator('#f-mode').inputValue()==='design','switching project returns to design mode');
+  return {passed:checks.length,checks,errors};
+  } finally {
+    await page.evaluate(value=>{ if(value===null) localStorage.removeItem('aidev-workbench-projects'); else localStorage.setItem('aidev-workbench-projects',value); },original);
+    await page.reload();
+  }
+}
