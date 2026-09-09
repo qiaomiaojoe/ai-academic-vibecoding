@@ -177,6 +177,13 @@
         <b>自己改：</b>说「<b>哪个部件 + 想要什么行为</b>」，像跟人类程序员提需求。
       </div>
     </div>
+
+    <!-- 第 3 讲的造 skill 清单：名字在第 2 讲就定，方法在第 3 讲固化 -->
+    <div class="card">
+      <h3>要造的 skill <span class="badge-sm">第 3 讲的清单</span></h3>
+      <div class="hint">场景命名后，名字就固定下来；标「待造」的表示方法正文还内联在卡里，第 3 讲用 skill-forge 逐个固化成 SKILL.md，再把状态改成「已建」。</div>
+      <div id="skillPlan" style="margin-top:10px;"></div>
+    </div>
   </section>
 
 
@@ -212,15 +219,24 @@
       </div>
     </div>
 
-    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <!-- ◆ 部件② skill —— 名字先定下来；skill 造出来之前，方法正文内联 -->
     <div class="card zone-skill">
       <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
-      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="hint">名字<b>现在就定</b>，方法可以后补。第 2 讲先把方法正文写在下面；第 3 讲用 skill-forge 把它固化成真的 SKILL.md，再把状态改成「已建」。</div>
       <div class="fields">
         <div class="field"><label>skill 名</label>
-          <input type="text" id="s1-skill" value="【待填：调用哪个 skill】"></div>
+          <input type="text" id="s1-skill" value="【待填：调用哪个 skill】" oninput="renderSkillPlan()"></div>
         <div class="field"><label>一句话职责</label>
           <input type="text" id="s1-duty" value="【待填：它负责什么】"></div>
+        <div class="field"><label>方法状态</label>
+          <select id="s1-state" onchange="syncSkillState('s1')">
+            <option value="todo">待造 · 方法正文写在下面</option>
+            <option value="ready">已建 · 引用真的 SKILL.md</option>
+          </select></div>
+      </div>
+      <div class="fields one" id="s1-methodwrap">
+        <div class="field"><label>方法正文（skill 还没造出来，AI 就按这里执行）</label>
+          <textarea id="s1-method" rows="5" placeholder="写清步骤、判断标准、硬约束、什么时候必须停下来问你。这段将来就是 SKILL.md 的初稿。"></textarea></div>
       </div>
     </div>
 
@@ -271,15 +287,24 @@
       </div>
     </div>
 
-    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <!-- ◆ 部件② skill —— 名字先定下来；skill 造出来之前，方法正文内联 -->
     <div class="card zone-skill">
       <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
-      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="hint">名字<b>现在就定</b>，方法可以后补。第 2 讲先把方法正文写在下面；第 3 讲用 skill-forge 把它固化成真的 SKILL.md，再把状态改成「已建」。</div>
       <div class="fields">
         <div class="field"><label>skill 名</label>
-          <input type="text" id="s2-skill" value="【待填：调用哪个 skill】"></div>
+          <input type="text" id="s2-skill" value="【待填：调用哪个 skill】" oninput="renderSkillPlan()"></div>
         <div class="field"><label>一句话职责</label>
           <input type="text" id="s2-duty" value="【待填：它负责什么】"></div>
+        <div class="field"><label>方法状态</label>
+          <select id="s2-state" onchange="syncSkillState('s2')">
+            <option value="todo">待造 · 方法正文写在下面</option>
+            <option value="ready">已建 · 引用真的 SKILL.md</option>
+          </select></div>
+      </div>
+      <div class="fields one" id="s2-methodwrap">
+        <div class="field"><label>方法正文（skill 还没造出来，AI 就按这里执行）</label>
+          <textarea id="s2-method" rows="5" placeholder="写清步骤、判断标准、硬约束、什么时候必须停下来问你。这段将来就是 SKILL.md 的初稿。"></textarea></div>
       </div>
     </div>
 
@@ -330,15 +355,24 @@
       </div>
     </div>
 
-    <!-- ◆ 部件② skill —— 方法长在 SKILL.md 里，这里只引用 -->
+    <!-- ◆ 部件② skill —— 名字先定下来；skill 造出来之前，方法正文内联 -->
     <div class="card zone-skill">
       <h3>② skill <span class="badge-sm">这个场景的学术逻辑</span></h3>
-      <div class="hint">方法不写在网页里，写在一份 SKILL.md 里，这里只<b>引用</b>它。</div>
+      <div class="hint">名字<b>现在就定</b>，方法可以后补。第 2 讲先把方法正文写在下面；第 3 讲用 skill-forge 把它固化成真的 SKILL.md，再把状态改成「已建」。</div>
       <div class="fields">
         <div class="field"><label>skill 名</label>
-          <input type="text" id="s3-skill" value="【待填：调用哪个 skill】"></div>
+          <input type="text" id="s3-skill" value="【待填：调用哪个 skill】" oninput="renderSkillPlan()"></div>
         <div class="field"><label>一句话职责</label>
           <input type="text" id="s3-duty" value="【待填：它负责什么】"></div>
+        <div class="field"><label>方法状态</label>
+          <select id="s3-state" onchange="syncSkillState('s3')">
+            <option value="todo">待造 · 方法正文写在下面</option>
+            <option value="ready">已建 · 引用真的 SKILL.md</option>
+          </select></div>
+      </div>
+      <div class="fields one" id="s3-methodwrap">
+        <div class="field"><label>方法正文（skill 还没造出来，AI 就按这里执行）</label>
+          <textarea id="s3-method" rows="5" placeholder="写清步骤、判断标准、硬约束、什么时候必须停下来问你。这段将来就是 SKILL.md 的初稿。"></textarea></div>
       </div>
     </div>
 
@@ -457,8 +491,21 @@ function buildScene(id){
   if(note) context += "\n这次的特别要求：" + note;
   if(up)   context += "\n\n先读上一步的产出：`" + up + "`";
 
-  let skillCall = "## 调用 skill\n\n请使用「" + skill + "」skill 完成这个场景"
-    + (duty ? "（它负责：" + duty + "）" : "") + "。\n严格遵循该 skill 内定义的步骤、判断标准、硬约束与停点。";
+  const state  = (document.getElementById(id+"-state")||{}).value || "todo";
+  const method = val(id+"-method");
+  let skillCall;
+  if(state === "ready"){
+    skillCall = "## 调用 skill\n\n请使用「" + skill + "」skill 完成这个场景"
+      + (duty ? "（它负责：" + duty + "）" : "") + "。\n严格遵循该 skill 内定义的步骤、判断标准、硬约束与停点。";
+  } else {
+    /* skill 只是占位名，还没造出来。必须说破，否则 AI 会照着名字把方法脑补出来。 */
+    skillCall = "## 方法（正文在此，skill 尚未建立）\n\n这个场景将来会固化成 `" + skill + "` skill，"
+      + "**但它现在还不存在**。不要去查找、加载或假装读过这个 skill，也不要按名字推测它的内容；"
+      + "就按下面的方法正文执行。\n"
+      + (duty ? "\n职责：" + duty + "\n" : "")
+      + "\n方法正文：\n"
+      + (method || "【方法正文还没写。请先告诉我这个场景该怎么做，不要替我编一套方法。】");
+  }
 
   let output = "## 输出落盘\n\n- 产出写到 `" + out + "`，Markdown 格式，开头注明日期和本次输入摘要\n"
     + (up ? "- 跑之前先读 `" + up + "`；**读不到就明说没读到，不要脑补上游产出。**\n" : "")
@@ -468,6 +515,24 @@ function buildScene(id){
   toast("生成好了，往下看三块");
 }
 
+function syncSkillState(id){
+  const ready = document.getElementById(id+"-state").value === "ready";
+  document.getElementById(id+"-methodwrap").style.display = ready ? "none" : "";
+  renderSkillPlan();
+}
+/* 第 3 讲的造 skill 清单：哪些名字已经定了、还没造。 */
+function renderSkillPlan(){
+  const box = document.getElementById("skillPlan");
+  if(!box) return;
+  const todo = ["s1","s2","s3"].map(id => ({
+    id, name: val(id+"-skill"), ready: (document.getElementById(id+"-state")||{}).value === "ready"
+  })).filter(x => x.name && x.name.indexOf("【待填") < 0);
+  if(!todo.length){ box.innerHTML = '<div class="hint">场景还没命名。装好场景后，这里会列出要造的 skill。</div>'; return; }
+  box.innerHTML = '<ul style="margin:0;padding-left:18px;line-height:1.9;">' + todo.map(x =>
+    '<li><code>' + esc(x.name) + '</code> <span class="badge-sm' + (x.ready ? ' ok' : '') + '">' +
+    (x.ready ? "已建" : "待造") + '</span> <span class="hint" style="display:inline;">场景' + x.id.slice(1) + '</span></li>'
+  ).join("") + '</ul>';
+}
 function genS1(){ buildScene("s1"); }
 function genS2(){ buildScene("s2"); }
 function genS3(){ buildScene("s3"); }
@@ -486,6 +551,7 @@ document.getElementById("foot").innerHTML =
   esc(WB_NAME) + " v" + WB_VERSION + (WB_OWNER ? " ｜ " + esc(WB_OWNER) : "") +
   "<br>基于 乔淼PhD · AI学术训练营·进阶班 工作台原型搭建";
 loadShared();
+["s1","s2","s3"].forEach(syncSkillState);
 </script>
 </body>
 </html>
