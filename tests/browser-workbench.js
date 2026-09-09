@@ -1,4 +1,4 @@
-async (page) => {
+module.exports = async (page) => {
   const checks=[];
   const check=(yes,label)=>{if(!yes) throw new Error(label); checks.push(label);};
   const errors=[]; page.on('pageerror',e=>errors.push(e.message));

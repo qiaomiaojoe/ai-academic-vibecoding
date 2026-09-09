@@ -1,4 +1,4 @@
-async (page) => {
+module.exports = async (page) => {
   const checks=[], errors=[];page.on('pageerror',e=>errors.push(e.message));
   const check=(v,name)=>{if(!v)throw Error(name);checks.push(name);};
   check((await page.locator('#mode').innerText()).includes('模拟模式'),'generated workbench clearly labels simulation');

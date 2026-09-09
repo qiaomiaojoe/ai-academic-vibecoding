@@ -1,4 +1,4 @@
-async (page) => {
+module.exports = async (page) => {
   const checks=[],errors=[];const check=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
   page.on('pageerror',e=>errors.push(e.message));
   const keys=['aidev-workbench-projects','aidev-meta-draft','aidev-flow-draft'];
