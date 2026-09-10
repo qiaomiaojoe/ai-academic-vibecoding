@@ -7,6 +7,12 @@
  * browser-workbench.js / browser-meta.js 跑工作台 HTML；
  * browser-runtime.js 跑生成的运行组件，需要先起本机服务，不给地址就跳过。
  *
+ * 跑第三个套件的三步（在 skills/workbench-builder/ 下）：
+ *   node scripts/generate.cjs assets/workflow.example.json /tmp/rt
+ *   cd /tmp/rt && node server.cjs --demo      # 打印带令牌的 URL，整条复制
+ *   node <本文件> <工作台HTML> '<那条URL>'
+ * 示例 JSON 只用于开发回归，不是任何业务的方案。--demo 不调模型。
+ *
  * playwright 不是本仓库的依赖（学员 clone 不需要装）。跑之前自己装一次：
  *   npm i -g playwright && npx playwright install chromium
  * 或在任意目录 npm i playwright，再用 NODE_PATH 指过来。

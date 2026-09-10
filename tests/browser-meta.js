@@ -28,7 +28,7 @@ module.exports = async (page) => {
     await page.reload();await nav('flow').click();
     check(await page.locator('#f-workflow').inputValue()==='先读材料，再整合 <b>草案</b>','drafts survive reload');
     await page.locator('#f-mode').selectOption('build');await page.locator('#panel-flow .btn-primary').click();text=await page.locator('#flowPreview').innerText();
-    check(text.includes('搭建完成后立即调用同仓库的 workbench-validator')&&text.includes('不等待我另发试跑指令'),'building automatically continues to trial repair and retest');
+    check(text.includes('搭建完成后立即调用')&&text.includes('workbench-validator')&&text.includes('不等待我另发试跑指令')&&!text.includes('同仓库'),'building automatically continues to trial repair and retest');
     check(text.includes('外部发送仍保留决定点')&&text.includes('不能用模拟结果冒充真实运行'),'automatic repair retains business decisions and truthful evidence');
     await nav('entry').click();await page.locator('.recent').filter({hasText:'旧示例'}).click();await nav('flow').click();
     check(await page.locator('#f-workflow').inputValue()===''&&await page.locator('#f-subagent').inputValue()==='','v1.2 generic template is no longer auto-filled');
