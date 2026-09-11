@@ -75,14 +75,17 @@ test('default install uses public course repo without requiring a local checkout
   const s=f.run('copied');
   assert.match(s,/未指定本地开发版仓库/);
   assert.match(s,/https:\/\/github.com\/qiaomiaojoe\/ai-academic-vibecoding/);
-  assert.match(s,/不要自动使用 --update 覆盖我的定制方法/);
+  assert.match(s,/五个课程工具全部追加 --update/);
+  assert.match(s,/不要更新这五个以外的任何 skill/);
+  assert.match(s,/git rev-parse --short HEAD/);
   assert.ok(!s.includes('teacher-private'));
 });
 test('install honors explicit local source and protects custom skills',()=>{
   const f=fixture(urls[0],'./local-tools'); f.run('copyText=text=>{globalThis.copied=text}; copyInstall()');
   assert.match(f.run('copied'),/用户填写的开发工具源仓库：\.\/local-tools/);
   assert.ok(!f.run('copied').includes('未指定本地开发版仓库'));
-  assert.match(f.run('copied'),/不要自动使用 --update/);
+  assert.match(f.run('copied'),/五个课程工具全部追加 --update/);
+  assert.match(f.run('copied'),/不要更新这五个以外的任何 skill/);
 });
 test('all prompt entry points are portable across page locations',()=>{
   function prompts(url) {
