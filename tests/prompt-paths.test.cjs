@@ -96,7 +96,8 @@ test('all prompt entry points are portable across page locations',()=>{
     for(const mode of ['design','build']) {f.get('f-mode').value=mode; f.run('genFlow()'); result.push(f.run('LAST.flow.full'));}
     f.get('s-name').value='review-response';
     for(const bind of [true,false]) {f.get('s-bind').checked=bind;f.run('genForge()');result.push(f.run('LAST.forge.full'));}
-    for(const level of ['1','2','3','4','5','6']) {f.get('u-level').value=level;f.run('genShip()');result.push(f.run('LAST.ship.full'));}
+    for(const move of ['theme','part']) {f.get('ui-move').value=move;f.run('onMoveChange()');f.run('genDesign()');result.push(f.run('LAST.design.full'));}
+    f.run('genPublish()');result.push(f.run('LAST.publish.full'));
     f.run('copyInstall()');result.push(f.run('copied'));
     return result;
   }
