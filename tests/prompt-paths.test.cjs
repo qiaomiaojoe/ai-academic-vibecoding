@@ -96,7 +96,11 @@ test('all prompt entry points are portable across page locations',()=>{
     for(const mode of ['design','build']) {f.get('f-mode').value=mode; f.run('genFlow()'); result.push(f.run('LAST.flow.full'));}
     f.get('s-name').value='review-response';
     for(const bind of [true,false]) {f.get('s-bind').checked=bind;f.run('genForge()');result.push(f.run('LAST.forge.full'));}
-    for(const move of ['theme','part']) {f.get('ui-move').value=move;f.run('onMoveChange()');f.run('genDesign()');result.push(f.run('LAST.design.full'));}
+    f.run('genTheme()');result.push(f.run('LAST.theme.full'));
+    f.get('pt-name').value='研究取向';f.get('pt-opts').value='质性 / 量化 / 混合方法';
+    f.get('pt-canned').value='请把我的 skill 库更新到最新版。';
+    for(const kind of ['text','select','file','copy']) {f.get('pt-kind').value=kind;f.run('onPartKindChange()');f.run('genPart()');result.push(f.run('LAST.part.full'));}
+    for(const scope of ['all','some']) {f.get('wf-scope').value=scope;f.run('onScopeChange()');f.run('genIntegrate()');result.push(f.run('LAST.integrate.full'));}
     f.run('genPublish()');result.push(f.run('LAST.publish.full'));
     f.run('copyInstall()');result.push(f.run('copied'));
     return result;
