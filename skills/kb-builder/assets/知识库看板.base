@@ -1,0 +1,55 @@
+# kb-builder 生成的看板视图。筛选写在各视图里，不放全局。
+
+properties:
+  note.status:
+    displayName: 状态
+  note.category:
+    displayName: 分类
+  note.updated:
+    displayName: 更新
+  note.sources:
+    displayName: 来源
+
+views:
+  - type: cards
+    name: 按状态看板
+    filters:
+      and:
+        - 'file.inFolder("wiki")'
+        - or:
+          - 'status == "已验"'
+          - 'status == "待验"'
+          - 'status == "存疑"'
+    groupBy:
+      property: note.status
+      direction: ASC
+    order:
+      - file.name
+      - note.category
+      - note.updated
+
+  - type: table
+    name: 按分类总表
+    filters:
+      and:
+        - 'file.inFolder("wiki")'
+        - 'category != ""'
+    groupBy:
+      property: note.category
+      direction: ASC
+    order:
+      - file.name
+      - note.status
+      - note.updated
+      - note.sources
+
+  - type: table
+    name: 待补的
+    filters:
+      or:
+        - 'status == "待验"'
+        - 'status == "存疑"'
+    order:
+      - file.name
+      - note.status
+      - note.category

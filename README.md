@@ -12,6 +12,7 @@
 | [workbench-builder](skills/workbench-builder/SKILL.md) | workflow / subagent 设计、搭建及自动试跑修复 | 工作台设计.md、场景、方法绑定与进度 |
 | [skill-forge](skills/skill-forge/SKILL.md) | 从经验、规范、案例或方法文献制作/修订 skill，接回场景 | 方法源、执行路径/版本、接口、试跑结果 |
 | [workbench-validator](skills/workbench-validator/SKILL.md) | 搭建后自动调用的试跑与修复工具，无独立任务卡 | 验收报告与有证据的开发工具改进建议 |
+| [kb-builder](skills/kb-builder/SKILL.md) | 一键建知识库：指定放原材料的文件夹，建三层结构、写规则层、逐份编译成互链概念页、体检、生成 Obsidian 看板视图；再跑一次只录入新材料 | 知识库文件夹（KB-SKILL.md / raw / wiki / 建库报告.md） |
 
 流程：立项 → 设计 workflow / subagent 并确认 → 搭建（按需制作/修订方法并绑定）→ 自动试跑、修复、复测。允许沿同一设计与同一工作台往返迭代，不是每次重建。
 
